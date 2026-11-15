@@ -1,0 +1,6 @@
+const neonBackdrop=new Image();neonBackdrop.src='assets/neon-laboratory-v2.png';
+const visualTheme='neon';
+const themePalettes={neon:{frame:'#101b2a',edge:'#427b8a',sky:['#060d18','#0c172a','#18213c'],boards:['#509b9c','#528ba9','#8985bd','#529c8a','#a1946c','#a16e9c','#857bb8','#538da5']}};
+function initThemes(){document.documentElement.dataset.theme='neon';refreshMenuMaterials()}
+function drawThemeScenery(x){ctx.save();ctx.beginPath();ctx.rect(x,76,276,1081);ctx.clip();if(neonBackdrop.complete&&neonBackdrop.naturalWidth){let scale=Math.max(588/neonBackdrop.naturalWidth,1081/neonBackdrop.naturalHeight),w=neonBackdrop.naturalWidth*scale,h=neonBackdrop.naturalHeight*scale;ctx.drawImage(neonBackdrop,36+(588-w)/2,76+(1081-h)/2,w,h);ctx.fillStyle='#040b1829';ctx.fillRect(x,76,276,1081)}ctx.strokeStyle='#62d9ea0b';ctx.lineWidth=1;for(let y=90;y<1157;y+=40){ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+276,y);ctx.stroke()}for(let a=0;a<7;a++){ctx.beginPath();ctx.moveTo(x+a*46,76);ctx.lineTo(x+a*46,1157);ctx.stroke()}ctx.strokeStyle='#74e0e54d';ctx.beginPath();ctx.moveTo(x+2,76);ctx.lineTo(x+2,1157);ctx.moveTo(x+274,76);ctx.lineTo(x+274,1157);ctx.stroke();ctx.restore()}
+function drawThemeBoard(x,y){ctx.strokeStyle='#b3f4fa88';ctx.lineWidth=1;ctx.strokeRect(x+2,y+2,272,26);ctx.fillStyle='#c5f3ff17';ctx.fillRect(x+4,y+3,268,6)}

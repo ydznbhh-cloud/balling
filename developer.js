@@ -1,7 +1,7 @@
 // All gameplay tuning lives here; the editor validates and persists this schema.
 const tuningGroups={
 '通用运动':{gravity:['重力',1100,100,5000],vxMin:['初始水平速度下限',35,0,300],vxRange:['初始水平随机增量',30,0,300],vxMax:['水平速度上限',100,1,500],vxFloor:['水平速度最低值',25,0,300],vxJitter:['每次撞击水平扰动范围',35,0,300],bounce:['普通反弹基准',260,20,800],bounceRandom:['普通反弹随机增量',120,0,500],fall:['破板下落速度基准',70,0,500],fallRandom:['破板下落随机增量',60,0,300]},
-'Heavy':{weight:['初始重量',100,1,1e10],growth:['每次撞击重量倍率',2.6,1,100],rageGain:['每击怒气',15,0,1000],rageMax:['怒气上限',100,1,1000],rageDuration:['狂暴时长（秒）',2,.1,30],rageMultiplier:['狂暴伤害倍率',100,1,1e8],ragePercent:['狂暴最低伤害（初始板值 %）',12,0,100],rageBounce:['狂暴反弹基准',80,10,800],rageRandom:['狂暴反弹随机增量',40,0,500]},
+'怒焰球':{weight:['初始重量',100,1,1e10],growth:['每次撞击重量倍率',2.6,1,100],rageGain:['每击怒气',15,0,1000],rageMax:['怒气上限',100,1,1000],rageDuration:['狂暴时长（秒）',2,.1,30],rageMultiplier:['狂暴伤害倍率',100,1,1e8],ragePercent:['狂暴最低伤害（初始板值 %）',12,0,100],rageBounce:['狂暴反弹基准',80,10,800],rageRandom:['狂暴反弹随机增量',40,0,500]},
 '根号球 / 立方根球 / ln 球':{rootBounce:['根号球反弹基准',235,20,800],rootDegree:['根号球开方次数',2,1.01,20],cubeDegree:['立方根球开方次数',3,1.01,20],cubeWait:['立方根球蓄力（秒）',.1,0,10],cubeBounce:['立方根球反弹基准倍率',1.3,.1,5],cubeSpeed:['立方根球速度倍率',1.2,.1,5],lnBase:['ln 球对数底数（e≈2.71828）',Math.E,1.01,100]},
 '钻头球':{drillDuration:['钻击时长（秒）',1,.05,10],drillHits:['普通钻击破板次数',6,1,100,1],drillChance:['粉碎大招概率 %',35,0,100],drillBounce:['钻头反弹基准',120,10,800],drillRandom:['钻头反弹随机增量',50,0,500]},
 '混沌球':{chaosMin:['随机开方次数下限',2,1.01,20],chaosMax:['随机开方次数上限',6,1.01,30],chaosChance:['二次触发概率 %',20,0,100]},
