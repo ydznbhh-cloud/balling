@@ -23,7 +23,7 @@ function clearModeSession(){
   navigationElement('#solo-stage').classList.remove('has-selection');
   navigationElement('#solo-launch').disabled=true;
   navigationElement('#solo-launch').textContent='选择角色后开始挑战';
-  reset();syncDrillSound();
+  reset();syncDrillSound();stopSceneLoops();
 }
 function showArenaHome(){
   clearModeSession();hideNavigationPanels();
@@ -100,6 +100,7 @@ renderSoloGrid=function(){renderSoloGridForNavigation();navigationElement('#solo
 const refreshSoloBestForNavigation=refreshSoloBest;
 refreshSoloBest=function(){
   if(modeNavigation.mode!=='endless')return refreshSoloBestForNavigation();
+  const endlessBest=endlessRoleBest(soloSelection);
   navigationElement('#solo-best-value').textContent=endlessBest?'第 '+endlessBest+' 关':'— —';
   navigationElement('#solo-best').textContent='无尽模式最高关卡 · 本机记录';
 };
