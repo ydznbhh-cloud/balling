@@ -33,7 +33,7 @@ tryTideSurge(b,targets);
 }
 function tickTideActor(b,side,dt){if(b.role!=='tide'&&!b.special.tide)return false;let h=tideState(b);h.immunity=Math.max(0,h.immunity-dt);h.notice=Math.max(0,h.notice-dt);h.surgeCooldown=Math.max(0,h.surgeCooldown-dt);tickTideSurges(b,dt);tickTideFlights(b,dt);tickTideWater(b,dt);let f=h.float;if(!f)return false;
 // Float controls the sphere, while board vibration and detached fragments keep moving.
-if(b.role==='lead'||b.role==='tide')tickLeadDebris(b,dt);if(b.role==='magnet'){tickBending(b,dt);tickScrapBending(b,dt)}if(b.role==='gyro'){tickResonance(b,dt);tickScrapResonance(b,dt)}b.special.stunImmunity=Math.max(0,b.special.stunImmunity-dt);
+if(b.role==='lead'||b.role==='tide')tickLeadDebris(b,dt);if(b.role==='magnet'){tickBending(b,dt);tickScrapBending(b,dt)}b.special.stunImmunity=Math.max(0,b.special.stunImmunity-dt);
 f.age+=dt;let origin=side?348:36;b.x=Math.max(origin+32,Math.min(origin+244,b.x+b.vx*dt*.2));let top=108,bottom=1124;
 for(const t of tideTargets(b)){let surface=tideSurface(b,t,b.x);if(surface===null)continue;if(surface+30<=f.startY-31)top=Math.max(top,surface+30+32.1);else if(surface>=f.startY+31)bottom=Math.min(bottom,surface-32.1)}
 let lift=cfg.tideFloatLift*Math.sin(Math.min(1,f.age/.3)*Math.PI/2);b.y=Math.max(top,Math.min(Math.max(top,bottom),f.startY-lift));b.v=0;

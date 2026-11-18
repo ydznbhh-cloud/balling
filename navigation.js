@@ -8,7 +8,7 @@ const modeDefinitions={
 const navigationElement=selector=>document.querySelector(selector);
 const openDeveloperFields=navigationElement('#dev-open').onclick;
 function hideNavigationPanels(){
-  for(const selector of ['#home-screen','#lobby','main','#result','.pickers','#solo-panel','#rank-panel','#developer','#mode-welcome'])navigationElement(selector).hidden=true;
+  for(const selector of ['#home-screen','#lobby','main','#result','.pickers','#solo-panel','#rank-panel','#developer','#mode-welcome','#tournament-panel','#allstar-panel'])navigationElement(selector).hidden=true;
   navigationElement('#lobby').classList.remove('solo-selecting','ranking-view');
 }
 function clearModeSession(){
@@ -85,7 +85,7 @@ function startModeSession(replay=false){
   navigationElement('#menu').textContent='返回'+modeDefinitions[mode].name;
   navigationElement('#back').textContent='返回'+modeDefinitions[mode].name;
   navigationElement('#again').textContent='重玩';
-  reset();toggle();navigationElement('#start').focus();
+  reset();if(endlessMode)beginEndlessCountdown();else toggle();navigationElement('#start').focus();
 }
 function showHomeUtility(kind){
   clearModeSession();hideNavigationPanels();modeNavigation.mode=null;modeNavigation.screen=kind;

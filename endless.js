@@ -66,3 +66,27 @@ function tickPlayAssistance(dt){
   if(w.age>=6&&!b.action){b.v=Math.max(cfg.fall,260);b.vx=(Math.random()<.5?-1:1)*Math.max(cfg.vxMin,45);b.y+=4;w.age=0;materialSound('rescue');b.damageTexts.push({text:'脱困！',x:b.x,y:b.y-45,age:0});}
  }
 }
+
+// Real-time opening countdown: never enters simulation time or stage progression.
+const endlessCountdown={active:false,elapsed:0,digit:3,hidden:false};
+function cancelEndlessCountdown(){endlessCountdown.active=false;endlessCountdown.elapsed=0;endlessCountdown.hidden=false;}
+function beginEndlessCountdown(){
+ cancelEndlessCountdown();endlessCountdown.active=true;endlessCountdown.digit=3;running=false;
+ document.querySelector('#start').disabled=true;document.querySelector('#start').textContent='准备开始…';document.querySelector('#speed').disabled=true;
+ specialAudioCue('countdown3',[[440,440,.10,.12,0]]);
+}
+function advanceEndlessCountdown(dt){
+ const c=endlessCountdown;if(!c.active)return;
+ if(inMenu||!endlessMode||winner!==null){cancelEndlessCountdown();return;}
+ if(document.hidden){c.hidden=true;return;}if(c.hidden){c.hidden=false;return;}
+ c.elapsed+=Math.max(0,dt);const digit=Math.max(1,3-Math.floor(c.elapsed));
+ if(digit!==c.digit){c.digit=digit;specialAudioCue('countdown'+digit,[[digit===1?660:520,digit===1?660:520,.10,.12,0]]);}
+ if(c.elapsed>=3){c.active=false;document.querySelector('#start').disabled=false;document.querySelector('#speed').disabled=false;toggle();interfaceSound('start');}
+}
+function drawEndlessCountdown(){
+ const c=endlessCountdown;if(!c.active)return;
+ const width=canvas.width,height=canvas.height,x=width/2,y=height/2,phase=c.elapsed%1,pop=1+.22*Math.exp(-phase*8),alpha=Math.min(1,(1-phase)*5);
+ ctx.save();ctx.fillStyle='#04101d88';ctx.beginPath();ctx.roundRect(1,1,width-2,height-2,27);ctx.fill();ctx.translate(x,y);ctx.scale(pop,pop);
+ ctx.strokeStyle='#7cebdc44';ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,0,96,0,Math.PI*2);ctx.stroke();ctx.strokeStyle='#a4ffed';ctx.lineWidth=5;ctx.beginPath();ctx.arc(0,0,96,-Math.PI/2,-Math.PI/2+Math.PI*2*(1-phase));ctx.stroke();
+ ctx.globalAlpha=alpha;ctx.textAlign='left';ctx.textBaseline='alphabetic';ctx.font='800 140px system-ui';ctx.shadowColor='#5cf4e0';ctx.shadowBlur=24;ctx.fillStyle='#dffff8';const digit=String(c.digit),metrics=typeof ctx.measureText==='function'?ctx.measureText(digit):{},left=metrics.actualBoundingBoxLeft??0,right=metrics.actualBoundingBoxRight??metrics.width??84,ascent=metrics.actualBoundingBoxAscent??102,descent=metrics.actualBoundingBoxDescent??0;ctx.fillText(digit,(left-right)/2,(ascent-descent)/2);ctx.shadowBlur=0;ctx.globalAlpha=1;ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='14px system-ui';ctx.fillStyle='#b8dfe4';ctx.fillText('准备向下逃生',0,135);ctx.restore();
+}
