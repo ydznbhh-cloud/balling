@@ -13,8 +13,8 @@ function buildAllstar(){
  const w3=starAddRound('胜者组','四强赛',Array.from({length:2},(_,i)=>[starSource(w2[i*2]),starSource(w2[i*2+1])]));
  const l4=starAddRound('败者组','第四轮',Array.from({length:2},(_,i)=>[starSource(l3[i]),starSource(w3[1-i],'loser')]));
  const l5=starAddRound('败者组','第五轮',[[starSource(l4[0]),starSource(l4[1])]]);
- const w4=starAddRound('胜者组','胜者组决赛',[[starSource(w3[0]),starSource(w3[1])]]);
- const l6=starAddRound('败者组','败者组决赛',[[starSource(l5[0]),starSource(w4[0],'loser')]]);
+ const w4=starAddRound('胜者组','胜者组决赛',[[starSource(w3[0]),starSource(w3[1])]],3);
+ const l6=starAddRound('败者组','败者组决赛',[[starSource(l5[0]),starSource(w4[0],'loser')]],3);
  starAddRound('总决赛','冠军争夺战',[[starSource(w4[0]),starSource(l6[0])]],3);resolveStarMatches();showAllstarBracket();
 }
 function resolveStarMatches(){for(const m of allstar.matches)m.seats=m.sources.map(starResolve);allstar.index=allstar.matches.findIndex(m=>m.winner===null&&m.seats.every(s=>s!==null));}
@@ -28,7 +28,7 @@ function showAllstarBracket(){
  running=false;inMenu=true;allstar.playing=false;stopSceneLoops();syncDrillSound();hideNavigationPanels();modeNavigation.mode='versus';modeNavigation.screen='allstar-bracket';starEl('lobby').hidden=false;starEl('allstar-panel').hidden=false;starEl('mode-back').hidden=true;starEl('allstar-setup').hidden=true;starEl('allstar-bracket').hidden=false;resolveStarMatches();
  const complete=allstar.champion!==null,current=allstar.matches[allstar.index];starEl('allstar-summary').textContent=complete?'♜ 全明星冠军：'+starName(allstar.champion):'已完成 '+allstar.matches.filter(m=>m.winner!==null).length+' 轮对阵 · 剩余 '+allstar.losses.filter(n=>n<2).length+' 位选手 · 第二次输掉对阵才淘汰';
  starEl('allstar-current').innerHTML=complete?'<div class="cup-champion">♜ '+starName(allstar.champion)+' 夺冠</div>':starCard(current);starEl('allstar-next').hidden=complete;if(current)starEl('allstar-next').textContent=current.group+' · '+current.name+' · 开始第 '+(current.rounds.length+1)+' 局 →';
- starEl('allstar-tree').innerHTML=['胜者组','败者组','总决赛'].map(group=>{const list=allstar.matches.filter(m=>m.group===group),labels=[...new Set(list.map(m=>m.label))];return '<section class="allstar-group"><h3>'+group+'</h3>'+labels.map(label=>'<section class="allstar-round"><h4>'+label+'</h4>'+list.filter(m=>m.label===label).map(starCard).join('')+'</section>').join('')+'</section>';}).join('');starEl(complete?'allstar-new':'allstar-next').focus();
+ starEl('allstar-tree').innerHTML=renderAllstarTree();starEl(complete?'allstar-new':'allstar-next').focus();
 }
 function startAllstarGame(){
  if(!allstar.active||allstar.champion!==null)return;resolveStarMatches();const m=allstar.matches[allstar.index];if(!m)return;allstar.order=m.rounds.length%2?[1,0]:[0,1];selected=allstar.order.map(i=>allstar.seeds[m.seats[i]]);soloMode=false;endlessMode=false;inMenu=false;allstar.playing=true;allstar.serial++;hideNavigationPanels();document.querySelector('main').hidden=false;modeNavigation.mode='versus';modeNavigation.screen='allstar-game';reset();document.querySelector('main p').textContent='全明星 · '+m.group+' · '+m.name+' · '+m.scores.join(' : ')+' · '+(m.target===3?'五局三胜':'三局两胜');starEl('back').textContent='返回全明星赛程';starEl('menu').textContent='查看全明星赛程';starEl('again').textContent='继续全明星赛';toggle();
@@ -51,3 +51,39 @@ const welcomeBeforeAllstar=showModeWelcome;showModeWelcome=function(mode=modeNav
 starEl('allstar-open').onclick=showAllstarSetup;starEl('allstar-create').onclick=buildAllstar;starEl('allstar-shuffle').onclick=()=>{for(let i=allstar.seeds.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[allstar.seeds[i],allstar.seeds[j]]=[allstar.seeds[j],allstar.seeds[i]];}renderStarSeeds();};starEl('allstar-next').onclick=startAllstarGame;starEl('allstar-new').onclick=showAllstarSetup;starEl('allstar-close').onclick=()=>showModeWelcome('versus');
 for(const id of ['back','menu']){const button=starEl(id),old=button.onclick;button.onclick=()=>allstar.active?showAllstarBracket():old();}
 for(const id of ['again','reset']){const button=starEl(id),old=button.onclick;button.onclick=()=>{if(!allstar.active)return old();if(id==='again'&&!allstar.playing){if(allstar.champion!==null)return showAllstarSetup();return showAllstarBracket();}startAllstarGame();};}
+
+function allstarTreeLayout(group){
+ const matches=allstar.matches.filter(m=>m.group===group),labels=[...new Set(matches.map(m=>m.label))],positions=new Map(),available=Math.max(280,(starEl('allstar-tree').clientWidth||(typeof window!=='undefined'?window.innerWidth-100:1400))-2),gap=available>=1200?32:24,cardWidth=Math.min(group==='总决赛'?300:252,Math.max(128,(available-40-gap*(labels.length-1))/Math.max(1,labels.length))),cardHeight=142,pitch=cardWidth+gap,top=56;
+ const maxRows=Math.max(1,...labels.map(label=>matches.filter(m=>m.label===label).length)),height=top+maxRows*174+20;
+ labels.forEach((label,col)=>{const round=matches.filter(m=>m.label===label);round.forEach((m,row)=>{
+  const parents=m.sources.map(source=>source.outcome==='loser'?null:positions.get(source.id)).filter(Boolean);
+  const center=parents.length?parents.reduce((a,p)=>a+p.y+cardHeight/2,0)/parents.length:top+(row+.5)*(maxRows*174/round.length);
+  positions.set(m.id,{x:20+col*pitch,y:center-cardHeight/2,m});
+ });});
+ return {positions,labels,width:40+labels.length*pitch-gap,height,cardWidth,cardHeight,pitch};
+}
+function renderAllstarTree(){
+ return ['胜者组','败者组','总决赛'].map(group=>{
+  const layout=allstarTreeLayout(group),{positions,labels,width,height,cardWidth,cardHeight,pitch}=layout;let paths='',cards='';
+  for(const p of positions.values()){
+   const m=p.m;
+   for(let side=0;side<2;side++){
+    let source=m.sources[side],parent=positions.get(source.id);
+    if(!parent&&m.id==='GF-reset'){const first=allstar.matches.find(m=>m.label==='冠军争夺战');parent=positions.get(first?.id);source={outcome:side?'loser':'winner'};}
+    if(!parent)continue;const x1=parent.x+cardWidth,y1=parent.y+cardHeight/2,x2=p.x,y2=p.y+62+side*44,middle=(x1+x2)/2,finished=parent.m.winner!==null;
+    paths+='<path d="M '+x1+' '+y1+' H '+middle+' V '+y2+' H '+x2+'" class="'+(source.outcome==='loser'?'loss-link ': '')+(finished?'complete':'')+'" />';
+   }
+   const feeds=m.sources.map((source,i)=>{if(source.seat!==undefined)return '';const parent=allstar.matches.find(m=>m.id===source.id);return parent&&parent.group!==group?'<span>'+ (i?'下位':'上位')+'：'+parent.group+' '+parent.name+(source.outcome==='loser'?' 败者':' 胜者')+'</span>':'';}).join('');
+   cards+='<div class="star-tree-node" data-star-match="'+m.id+'" style="left:'+p.x+'px;top:'+p.y+'px;width:'+cardWidth+'px;height:'+cardHeight+'px">'+starCard(m)+(feeds?'<div class="star-tree-feeds">'+feeds+'</div>':'')+'</div>';
+  }
+  return '<section class="star-tree-group '+(group==='总决赛'?'star-tree-finals':'')+'"><header><h3>'+(group==='总决赛'?'♜ 总决赛':group)+'</h3><span>'+(group==='总决赛'?'巅峰对决 · 五局三胜':'向右晋级 →')+'</span></header><div class="star-tree-scroll" tabindex="0" aria-label="'+group+'横向晋级图，可左右滚动"><div class="star-tree-stage" style="width:'+width+'px;height:'+height+'px">'+labels.map((label,i)=>'<h4 class="star-tree-label" style="left:'+(20+i*pitch)+'px;width:'+cardWidth+'px">'+label+'</h4>').join('')+'<svg class="star-tree-links" width="'+width+'" height="'+height+'" aria-hidden="true">'+paths+'</svg>'+cards+'</div></div></section>';
+ }).join('');
+}
+starEl('allstar-locate').onclick=()=>{const current=allstar.matches[allstar.index];if(!current)return;const node=document.querySelector('[data-star-match="'+current.id+'"]');node?.scrollIntoView({behavior:'smooth',block:'center',inline:'center'});};
+
+// Reflow only the bracket presentation when the available viewport changes.
+let starResizeFrame=0;
+if(typeof window!=='undefined')window.addEventListener('resize',()=>{
+ if(!allstar.active||starEl('allstar-bracket').hidden)return;
+ cancelAnimationFrame(starResizeFrame);starResizeFrame=requestAnimationFrame(()=>{if(allstar.active&&!starEl('allstar-bracket').hidden)starEl('allstar-tree').innerHTML=renderAllstarTree();});
+});

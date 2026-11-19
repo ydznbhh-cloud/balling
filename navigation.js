@@ -8,7 +8,7 @@ const modeDefinitions={
 const navigationElement=selector=>document.querySelector(selector);
 const openDeveloperFields=navigationElement('#dev-open').onclick;
 function hideNavigationPanels(){
-  for(const selector of ['#home-screen','#lobby','main','#result','.pickers','#solo-panel','#rank-panel','#developer','#mode-welcome','#tournament-panel','#allstar-panel'])navigationElement(selector).hidden=true;
+  for(const selector of ['#home-screen','#lobby','main','#result','.pickers','#solo-panel','#rank-panel','#developer','#mode-welcome','#tournament-panel','#allstar-panel','#event-history-panel'])navigationElement(selector).hidden=true;
   navigationElement('#lobby').classList.remove('solo-selecting','ranking-view');
 }
 function clearModeSession(){

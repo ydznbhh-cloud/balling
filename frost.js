@@ -31,7 +31,7 @@ function tickFrostCracks(b,target,dt){
    if(crack.age-n*2/cfg.frostCrackSpeed<cfg.frostSplitDelay||crack.broken.has(n))continue;
    crack.broken.add(n);
    const previous=n?Math.floor(crack.path[n-1].x/2):col;
-   for(let k=Math.min(previous,col);k<=Math.max(previous,col);k++){const cell=row*138+k;if(state.material[cell]){state.material[cell]=0;changed=true;}}
+   for(let k=Math.min(previous,col);k<=Math.max(previous,col);k++){const cell=row*138+k;if(state.material[cell]){state.material[cell]=0;changed=true;if(frostState(b).ultimate>0&&typeof roleCount==='function')roleCount(b,'coldLinks');}}
   }
  }
  if(!changed)return;
