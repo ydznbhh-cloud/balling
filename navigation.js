@@ -1,8 +1,8 @@
 // Mode ownership stays explicit; results never infer a mode from death flags.
 const modeNavigation={mode:null,screen:'home',sessionRoles:null};
 const modeDefinitions={
-  versus:{name:'双球竞技',symbol:'VS',description:'两位选手，同场较量。选择双方角色，率先突破八层障碍。',rules:['双人同场','自由搭配角色','率先抵达终点获胜']},
-  solo:{name:'单球计时',symbol:'◷',description:'专注一位角色，挑战八层障碍，刷新你的最佳通关时间。',rules:['独立赛道','按游戏时间计时','不同参数分别记录成绩']},
+  versus:{name:'双球竞技',symbol:'VS',description:'两位选手，同场较量。选择双方角色，可选8、12、16板，率先抵达终点获胜。',rules:['双人同场','自由搭配角色','率先抵达终点获胜']},
+  solo:{name:'单球计时',symbol:'◷',description:'专注一位角色，挑战8、12、16板关卡，刷新你的最佳通关时间。',rules:['独立赛道','按游戏时间计时','不同参数分别记录成绩']},
   endless:{name:'无尽模式',symbol:'∞',description:'向下逃离不断逼近的锯齿，突破八层后迎接更坚固的下一关。',rules:['逐关增强','躲避上方锯齿','挑战最高关卡']}
 };
 const navigationElement=selector=>document.querySelector(selector);
@@ -59,7 +59,7 @@ function showModeSelection(){
     navigationElement('#solo-panel').hidden=false;
     navigationElement('#solo-panel').dataset.mode=mode;
     navigationElement('.challenge-heading h2').textContent=modeDefinitions[mode].name;
-    navigationElement('.challenge-heading p').textContent=mode==='endless'?'选择角色，挑战更高关卡':'选择角色，挑战八层障碍';
+    navigationElement('.challenge-heading p').textContent=mode==='endless'?'选择角色，挑战更高关卡':'选择角色，挑战8、12、16板关卡';
     navigationElement('#solo-close').textContent='返回模式首页';
     renderSoloGrid();
   }

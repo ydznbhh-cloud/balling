@@ -19,14 +19,14 @@ function buildAllstar(){
 }
 function resolveStarMatches(){for(const m of allstar.matches)m.seats=m.sources.map(starResolve);allstar.index=allstar.matches.findIndex(m=>m.winner===null&&m.seats.every(s=>s!==null));}
 function starName(seat){return seat===null?'等待晋级':cupRole(allstar.seeds[seat]).name;}
-function starCard(m){return '<article class="cup-match '+(allstar.matches[allstar.index]===m?'current':'')+'"><h3>'+m.name+' · '+(m.target===3?'五局三胜':'三局两胜')+'</h3>'+m.seats.map((s,i)=>{const r=s===null?null:cupRole(allstar.seeds[s]);return '<div class="cup-row '+(s!==null&&s===m.winner?'won':'')+'">'+(r?'<span class="orb" style="--accent:'+r.color+'">'+r.icon+'</span>':'<span>◇</span>')+'<b>'+starName(s)+(s!==null?' <small>('+allstar.losses[s]+'败)</small>':'')+'</b><strong>'+m.scores[i]+'</strong></div>';}).join('')+'</article>';}
+function starCard(m){return '<article class="cup-match '+(allstar.matches[allstar.index]===m?'current':'')+'"><h3>'+m.name+' · '+(m.target===3?'五局三胜':'三局两胜')+'</h3>'+m.seats.map((s,i)=>{const r=s===null||s===-1?null:cupRole(allstar.seeds[s]);return '<div class="cup-row '+(s!==null&&s===m.winner?'won':'')+'">'+(r?'<span class="orb" style="--accent:'+r.color+'">'+r.icon+'</span>':'<span>◇</span>')+'<b>'+starName(s)+(s!==null&&s>=0?' <small>('+allstar.losses[s]+'败)</small>':'')+'</b><strong>'+m.scores[i]+'</strong></div>';}).join('')+'</article>';}
 function showAllstarSetup(){
  clearModeSession();hideNavigationPanels();allstar.active=true;allstar.playing=false;allstar.seeds=roles.map(r=>r.id);allstar.matches=[];allstar.champion=null;modeNavigation.mode='versus';modeNavigation.screen='allstar-setup';starEl('lobby').hidden=false;starEl('allstar-panel').hidden=false;starEl('mode-back').hidden=true;starEl('mode-title').textContent='双球竞技 · 全明星冠军赛';starEl('mode-exit').textContent='退出模式 ↗';starEl('allstar-setup').hidden=false;starEl('allstar-bracket').hidden=true;renderStarSeeds();
 }
 function renderStarSeeds(){starEl('allstar-roster').innerHTML=allstar.seeds.map((id,i)=>{const r=cupRole(id);return '<div class="allstar-entrant"><span class="orb" style="--accent:'+r.color+'">'+r.icon+'</span><span>'+String(i+1).padStart(2,'0')+' '+r.name+'<br><small>'+r.profession+'</small></span></div>';}).join('');starEl('allstar-create').disabled=allstar.seeds.length!==16;}
 function showAllstarBracket(){
  running=false;inMenu=true;allstar.playing=false;stopSceneLoops();syncDrillSound();hideNavigationPanels();modeNavigation.mode='versus';modeNavigation.screen='allstar-bracket';starEl('lobby').hidden=false;starEl('allstar-panel').hidden=false;starEl('mode-back').hidden=true;starEl('allstar-setup').hidden=true;starEl('allstar-bracket').hidden=false;resolveStarMatches();
- const complete=allstar.champion!==null,current=allstar.matches[allstar.index];starEl('allstar-summary').textContent=complete?'♜ 全明星冠军：'+starName(allstar.champion):'已完成 '+allstar.matches.filter(m=>m.winner!==null).length+' 轮对阵 · 剩余 '+allstar.losses.filter(n=>n<2).length+' 位选手 · 第二次输掉对阵才淘汰';
+ const complete=allstar.champion!==null,current=allstar.matches[allstar.index];starEl('allstar-summary').textContent=complete?'♜ 全明星冠军：'+starName(allstar.champion):'已完成 '+allstar.matches.filter(m=>m.winner!==null&&!m.bye).length+' 轮对阵 · 剩余 '+allstar.losses.filter(n=>n<2).length+' 位选手 · 第二次输掉对阵才淘汰';
  starEl('allstar-current').innerHTML=complete?'<div class="cup-champion">♜ '+starName(allstar.champion)+' 夺冠</div>':starCard(current);starEl('allstar-next').hidden=complete;if(current)starEl('allstar-next').textContent=current.group+' · '+current.name+' · 开始第 '+(current.rounds.length+1)+' 局 →';
  starEl('allstar-tree').innerHTML=renderAllstarTree();starEl(complete?'allstar-new':'allstar-next').focus();
 }
@@ -63,7 +63,7 @@ function allstarTreeLayout(group){
  return {positions,labels,width:40+labels.length*pitch-gap,height,cardWidth,cardHeight,pitch};
 }
 function renderAllstarTree(){
- return ['胜者组','败者组','总决赛'].map(group=>{
+ return ['胜者组','败者组','总决赛'].filter(group=>allstar.matches.some(m=>m.group===group)).map(group=>{
   const layout=allstarTreeLayout(group),{positions,labels,width,height,cardWidth,cardHeight,pitch}=layout;let paths='',cards='';
   for(const p of positions.values()){
    const m=p.m;

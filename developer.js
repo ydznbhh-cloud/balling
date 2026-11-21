@@ -9,9 +9,10 @@ const tuningGroups={
 '裂纹 / 特效':{crackInterval:['钻击裂纹生长间隔（秒）',.08,.01,1],crackEnergy:['钻击应力能量',4,1,20],crackBranch:['裂纹分叉概率 %',14,0,100],crackLimit:['每板裂纹段数上限',220,20,600,1],crackReveal:['裂纹展开速度',8,1,30],shake:['爆炸震屏强度倍率',1,0,3],drillShake:['钻击板面震动倍率',1,0,3],particles:['粒子数量倍率',1,0,3]}
 };
 for(let i=0;i<8;i++){(tuningGroups['板数值（10 的指数，如 3 表示 1000）']??={})['board'+i]=['第 '+(i+1)+' 层指数',[Math.log10(512),Math.log10(16384),9.934,15.352,24.685,36.124,55.09,616.509][i],0,10000]}
+(tuningGroups['基础运动']??={}).courseBoards=['关卡板数',8,8,16,1];
 const tuningSchema=Object.assign({},...Object.values(tuningGroups));
 const tuningDefaults=Object.fromEntries(Object.entries(tuningSchema).map(([k,v])=>[k,v[1]]));
-function validateTuning(input){if(!input||typeof input!=='object'||Array.isArray(input))throw Error('配置必须是 JSON 对象');const next={...tuningDefaults};for(const [key,value] of Object.entries(input)){const spec=tuningSchema[key];if(!spec)throw Error('未知参数：'+key);if(typeof value!=='number'||!Number.isFinite(value)||value<spec[2]||value>spec[3]||(spec[4]===1&&!Number.isInteger(value)))throw Error(spec[0]+' 超出范围或格式错误');next[key]=value}if(next.chaosMax<next.chaosMin)throw Error('混沌球上限不能小于下限');if(next.vxFloor>next.vxMax||next.vxMin+next.vxRange>next.vxMax)throw Error('水平初速与最低速度不能超过上限');return next}
+function validateTuning(input){if(!input||typeof input!=='object'||Array.isArray(input))throw Error('配置必须是 JSON 对象');const next={...tuningDefaults};for(const [key,value] of Object.entries(input)){const spec=tuningSchema[key];if(!spec)throw Error('未知参数：'+key);if(typeof value!=='number'||!Number.isFinite(value)||value<spec[2]||value>spec[3]||(spec[4]===1&&!Number.isInteger(value)))throw Error(spec[0]+' 超出范围或格式错误');next[key]=value}if(![8,12,16].includes(next.courseBoards))throw Error('板数仅支持8/12/16');if(next.chaosMax<next.chaosMin)throw Error('混沌球上限不能小于下限');if(next.vxFloor>next.vxMax||next.vxMin+next.vxRange>next.vxMax)throw Error('水平初速与最低速度不能超过上限');return next}
 let tuning={...tuningDefaults};
 let cfg={...tuning};
 function initDeveloper(){const panel=document.querySelector('#developer');document.querySelector('#dev-open').onclick=()=>{panel.hidden=!panel.hidden;if(!panel.hidden)renderDeveloper()};

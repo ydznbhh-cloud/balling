@@ -59,8 +59,8 @@ function tickFrost(b,side,dt){
    if(h.cooldown<=0){frostHit(b,c.target,c);h.cooldown=.055;}
    const vx=b.vx-2*c.dot*c.nx,vy=b.v-2*c.dot*c.ny,speed=cfg.bounce+Math.random()*cfg.bounceRandom,scale=speed/Math.max(1,Math.hypot(vx,vy));b.vx=Math.max(-cfg.vxMax,Math.min(cfg.vxMax,vx*scale));b.v=vy*scale;
   }
-  while(b.index<8&&b.y-32>258+b.index*113.2+30)b.index++;
-  if(b.y+32>=1140&&b.v>0){b.y=1108;b.done=true;b.finish=time;finishRace(side);break;}
+  while(b.index<levels.length&&b.y-32>258+b.index*113.2+30)b.index++;
+  if(b.y+32>=courseFloor()&&b.v>0){b.y=(courseFloor()-32);b.index=levels.length;b.done=true;b.finish=time;finishRace(side);break;}
  }
  return true;
 }

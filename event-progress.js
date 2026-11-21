@@ -5,7 +5,7 @@ function eventComplete(kind){return kind==='allstar'?allstar.champion!==null:tou
 function eventKey(kind){return 'ball-arena-event-'+kind+'-v1'}
 function eventSaveData(kind){
  const state=kind==='allstar'?allstar:tournament;
- return {version:1,kind,archiveId:state.archiveId,createdAt:state.createdAt,updatedAt:Date.now(),config:eventProgress.config[kind]||{...tuning},introduced:state.matches.flatMap((m,i)=>m.introPlayed?[kind==='allstar'?m.id:i]:[]),seeds:kind==='allstar'?[...allstar.seeds]:undefined,profession:kind==='cup'?tournament.profession:undefined,entrants:kind==='cup'?tournament.entrants.map(e=>e.role):undefined,games:state.matches.flatMap((m,i)=>m.rounds.map(r=>({match:kind==='allstar'?m.id:i,winner:r.winner,time:r.time,stats:r.stats}))),complete:eventComplete(kind)};
+ return {version:1,kind,archiveId:state.archiveId,createdAt:state.createdAt,lastEventKey:state.lastEventKey,updatedAt:Date.now(),config:eventProgress.config[kind]||{...tuning},introduced:state.matches.flatMap((m,i)=>m.introPlayed?[kind==='allstar'?m.id:i]:[]),seeds:kind==='allstar'?[...allstar.seeds]:undefined,profession:kind==='cup'?tournament.profession:undefined,entrants:kind==='cup'?tournament.entrants.map(e=>e.role):undefined,games:state.matches.flatMap((m,i)=>m.rounds.map(r=>({match:kind==='allstar'?m.id:i,winner:r.winner,time:r.time,stats:r.stats}))),complete:eventComplete(kind)};
 }
 function readEventSave(kind){try{const raw=localStorage.getItem(eventKey(kind));if(!raw)return null;const data=JSON.parse(raw);if(data.version!==1||data.kind!==kind||!Array.isArray(data.games)||data.games.length>200)return null;return data;}catch{return null;}}
 function saveTournamentProgress(){
@@ -32,13 +32,13 @@ function resumeTournament(kind){
    for(const game of data.games){const m=tournament.matches[tournament.index];if(game.match!==tournament.index||m.winner!==null||!m.seats.includes(game.winner)||!Number.isFinite(game.time)||game.time<0)throw Error('四强赛比分无效');const pos=m.seats.indexOf(game.winner);m.scores[pos]++;m.rounds.push({winner:game.winner,time:game.time,stats:game.stats});if(m.scores[pos]>=m.target){m.winner=game.winner;if(tournament.index<2){tournament.matches[2].seats[tournament.index]=game.winner;tournament.index++;}}}
    for(let i=0;i<tournament.matches.length;i++)if(data.introduced?.includes(i))tournament.matches[i].introPlayed=true;showCupBracket();
   }else{
-   if(!Array.isArray(data.seeds)||data.seeds.length!==16||new Set(data.seeds).size!==16||data.seeds.some(id=>!roles.some(r=>r.id===id)))throw Error('全明星阵容无效');
+   if(!Array.isArray(data.seeds)||data.seeds.length<2||data.seeds.length>16||new Set(data.seeds).size!==data.seeds.length||data.seeds.some(id=>!roles.some(r=>r.id===id)))throw Error('全明星阵容无效');
    showAllstarSetup();allstar.seeds=[...data.seeds];buildAllstar();
    const previousTime=time;
    try{for(const game of data.games){resolveStarMatches();const m=allstar.matches[allstar.index];if(!m||m.id!==game.match||!m.seats.includes(game.winner)||!Number.isFinite(game.time)||game.time<0)throw Error('全明星比分无效');allstar.order=m.rounds.length%2?[1,0]:[0,1];selected=allstar.order.map(i=>allstar.seeds[m.seats[i]]);time=game.time;recordAllstarGame(allstar.order.indexOf(m.seats.indexOf(game.winner)));m.rounds.at(-1).stats=game.stats;}}finally{time=previousTime;}
    for(const m of allstar.matches)if(data.introduced?.includes(m.id))m.introPlayed=true;showAllstarBracket();
   }
-  const state=kind==='allstar'?allstar:tournament;state.archiveId=data.archiveId;state.createdAt=data.createdAt;document.querySelector('#'+(kind==='cup'?'cup':'allstar')+'-save-status').textContent='存档已恢复 · 从下一小局继续，沿用赛事创建时参数';
+  const state=kind==='allstar'?allstar:tournament;state.archiveId=data.archiveId;state.createdAt=data.createdAt;state.lastEventKey=typeof data.lastEventKey==='string'?data.lastEventKey:null;document.querySelector('#'+(kind==='cup'?'cup':'allstar')+'-save-status').textContent='存档已恢复 · 从下一小局继续，沿用赛事创建时参数';
  }catch(error){showModeWelcome('versus');document.querySelector('#event-save-message').textContent='存档无法恢复：'+error.message+'。可以重新组建赛事。';}
  finally{eventProgress.restoring=false;}
 }
