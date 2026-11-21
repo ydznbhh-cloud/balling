@@ -1,11 +1,11 @@
 // Dismantled cells become a single-use ledge beneath the opponent. No board healing.
 Object.assign(tuningSchema,{
- gravityPadCooldown:['碎格承托释放间隔（秒）',.3,.1,10],
+ gravityPadCooldown:['碎格承托释放间隔（秒）',1,.1,10],
  gravityPadLife:['碎格承托有效秒数',2.5,.5,8],
  gravityPadBounce:['碎格承托反弹速度',800,100,1400]
 });
 for(const k of ['gravityPadCooldown','gravityPadLife','gravityPadBounce']){tuningDefaults[k]=tuningSchema[k][1];if(tuning[k]===undefined)tuning[k]=tuningDefaults[k];}
-if(tuning.gravityPadCooldown===3)tuning.gravityPadCooldown=.3;
+if(tuning.gravityPadCooldown===.3||tuning.gravityPadCooldown===3)tuning.gravityPadCooldown=1;
 if(tuning.gravityPadBounce===300)tuning.gravityPadBounce=800;
 for(const k of ['gravityRepairCap','gravityRepairRate','gravityNumericStrip'])delete tuningGroups['引力球'][k];
 for(const k of ['gravityPadCooldown','gravityPadLife','gravityPadBounce'])tuningGroups['引力球'][k]=tuningSchema[k];
